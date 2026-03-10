@@ -1,2 +1,23 @@
 .plan
 .idea
+
+# 가상 환경
+venv/
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+
+# 테스트 캐시
+.pytest_cache/
+
+# PyInstaller 빌드 결과물
+dist/
+build/
+
+# 앱 설정 파일 (접속 정보 포함)
+config.json
+
+# 임시 파일
+*.tmp
