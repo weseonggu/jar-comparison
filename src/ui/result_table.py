@@ -19,7 +19,8 @@ class ResultTable(QTableWidget):
 
     COLUMNS = ["파일 경로", "운영 크기", "로컬 크기", "상태"]
 
-    COLOR_MISSING = QColor("#FFEAEA")
+    COLOR_MISSING = QColor("#FFEAEA")          # 빨강: .class 등 중요 파일 누락
+    COLOR_MISSING_SOURCE = QColor("#EBEBEB")   # 회색: .java 소스 파일 누락 (낮은 우선순위)
     COLOR_MODIFIED = QColor("#FFF3CD")
     COLOR_LOCAL = QColor("#E8F5E9")
 
@@ -48,8 +49,13 @@ class ResultTable(QTableWidget):
 
     def load_missing(self, entries: List[JarEntry]) -> None:
         self.setRowCount(0)
-        for e in entries:
+        # 중요 파일(.class 등) 먼저, .java 소스 파일은 뒤에 표시
+        critical = [e for e in entries if not e.path.endswith(".java")]
+        source = [e for e in entries if e.path.endswith(".java")]
+        for e in critical:
             self._add_row(e.path, e.size_str(), "-", "운영에만 존재", self.COLOR_MISSING)
+        for e in source:
+            self._add_row(e.path, e.size_str(), "-", "소스만 존재 (참고)", self.COLOR_MISSING_SOURCE)
 
     def load_modified(self, pairs: List[Tuple[JarEntry, JarEntry]]) -> None:
         self.setRowCount(0)

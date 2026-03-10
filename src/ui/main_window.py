@@ -282,7 +282,12 @@ class MainWindow(QMainWindow):
         self._tab_modified.load_modified(result.modified_files)
         self._tab_local_only.load_local_only(result.local_only)
 
-        self._tab_widget.setTabText(0, f"누락 파일 (운영→로컬)  {len(result.missing_in_local)}")
+        critical_missing = [e for e in result.missing_in_local if not e.path.endswith(".java")]
+        source_missing = [e for e in result.missing_in_local if e.path.endswith(".java")]
+        missing_label = f"누락 파일 (운영→로컬)  {len(critical_missing)}건"
+        if source_missing:
+            missing_label += f"  +소스 {len(source_missing)}건"
+        self._tab_widget.setTabText(0, missing_label)
         self._tab_widget.setTabText(1, f"변경된 파일  {len(result.modified_files)}")
         self._tab_widget.setTabText(2, f"로컬 Only  {len(result.local_only)}")
 

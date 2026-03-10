@@ -16,13 +16,29 @@ class ComparisonResult:
     identical_count: int = 0
 
     @property
+    def critical_missing(self) -> List[JarEntry]:
+        """누락 파일 중 .java 소스를 제외한 중요 파일 목록."""
+        return [e for e in self.missing_in_local if not e.path.endswith(".java")]
+
+    @property
+    def source_missing(self) -> List[JarEntry]:
+        """누락 파일 중 .java 소스 파일 목록 (낮은 우선순위)."""
+        return [e for e in self.missing_in_local if e.path.endswith(".java")]
+
+    @property
     def total_issues(self) -> int:
-        return len(self.missing_in_local) + len(self.modified_files)
+        """심각도가 높은 문제 수 (.java 소스 누락 제외)."""
+        return len(self.critical_missing) + len(self.modified_files)
 
     @property
     def summary(self) -> str:
+        critical = len(self.critical_missing)
+        source = len(self.source_missing)
+        missing_str = f"누락(운영→로컬): {critical}개"
+        if source:
+            missing_str += f" (소스 {source}개 별도)"
         return (
-            f"누락(운영→로컬): {len(self.missing_in_local)}개  "
+            f"{missing_str}  "
             f"변경됨: {len(self.modified_files)}개  "
             f"로컬Only: {len(self.local_only)}개  "
             f"동일: {self.identical_count}개"
